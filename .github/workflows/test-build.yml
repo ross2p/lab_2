@@ -1,10 +1,13 @@
-name: Test, Build and Deploy
+name: Release & Publish
 
 on:
     push:
-        branches: [main, develop]
-    pull_request:
-        branches: [main, develop]
+        branches:
+            - main
+
+permissions:
+    contents: write
+    id-token: write
 
 jobs:
     test:
@@ -38,58 +41,40 @@ jobs:
             - name: Run e2e tests
               run: npm run test:e2e
 
-    build:
+    build-and-publish:
         needs: test
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-            - name: Use Node.js
+            - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "20.x"
+                  node-version: "20"
+                  registry-url: "https://registry.npmjs.org/"
+                  scope: "@rostyslavpasternak"
+                  always-auth: true
                   cache: "npm"
 
             - name: Install dependencies
               run: npm ci
 
-            - name: Build project
+            - name: Build
               run: npm run build
 
-            - name: Upload build artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: dist
-                  path: dist/
-
-    test-commands:
-        runs-on: ubuntu-latest
-
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Use Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20.x"
-                  cache: "npm"
-
-            - name: Install dependencies
-              run: npm ci
-
-            - name: Build project
-              run: npm run build
-
-            - name: Create test file
+            - name: Create test file for validation
               run: |
                   echo -e "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12" > test_input.txt
 
-            - name: Test head command (5 lines)
+            - name: Test head command
               run: npm run start:prod -- head test_input.txt -n 5
-
-            - name: Test head command (default 10 lines)
-              run: npm run start:prod -- head test_input.txt
 
             - name: Create duplicate test file
               run: |
@@ -98,57 +83,12 @@ jobs:
             - name: Test uniq command
               run: npm run start:prod -- uniq test_duplicates.txt
 
-            - name: Test uniq with count
-              run: npm run start:prod -- uniq test_duplicates.txt -c
-
-            - name: Test uniq with duplicates only
-              run: npm run start:prod -- uniq test_duplicates.txt -d
-
-            - name: Test uniq with unique only
-              run: npm run start:prod -- uniq test_duplicates.txt -u
-
-    deploy:
-        needs: [build, test-commands]
-        runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Use Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20.x"
-                  cache: "npm"
-                  registry-url: "https://registry.npmjs.org"
-
-            - name: Install dependencies
-              run: npm ci
-
-            - name: Build project
-              run: npm run build
-
-            - name: Setup NPM authentication
-              run: |
-                  echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-                  chmod 600 ~/.npmrc
-
-            - name: Publish to NPM
-              run: npm publish --access public
+            - name: Bump version & publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-            - name: Create Release
-              uses: actions/create-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  tag_name: v${{ github.run_number }}
-                  release_name: Release v${{ github.run_number }}
-                  body: |
-                      Automated release from GitHub Actions
-
-                      - Published to NPM: @rostyslavpasternak/lab-2
-                      - Build artifacts available in Actions
-                  draft: false
-                  prerelease: false
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  npm version patch -m "chore(release): v%s"
+                  npm publish --access public
+                  git push origin main --follow-tags
