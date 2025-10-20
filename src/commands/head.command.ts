@@ -16,12 +16,9 @@ export class HeadCommand extends CommandRunner {
     return parseInt(val, 10);
   }
 
-  async run(
-    passedParam: string[],
-    options?: Record<string, any>,
-  ): Promise<void> {
+  async run(passedParam: string[], options?: any): Promise<void> {
     const filePath = passedParam[0];
-    const lines = options?.lines || 10;
+    const lines = options['lines'] || 10;
 
     if (!filePath) {
       console.error('Помилка: укажіть шлях до файлу');
