@@ -1,0 +1,34 @@
+# Ignore source code
+src/
+*.ts
+**/*.ts
+!*.d.ts
+!**/*.d.ts
+*.tsx
+
+
+# Ignore config and development files
+tsconfig.json
+tsconfig.*.json
+nest-cli.json
+jest.config.*
+.eslintrc*
+.prettierrc*
+.vscode/
+.env
+.env.*
+
+# Ignore Git-related files
+.gitignore
+.gitattributes
+.github/
+
+# Other folders not needed in the package
+node_modules/
+test/
+__tests__/
+coverage/
+example/
+examples/
+.husky/
+
