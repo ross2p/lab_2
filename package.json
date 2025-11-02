@@ -1,6 +1,6 @@
 {
   "name": "@ross2p/lab-2",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Unix commands (head, uniq) implementation with NestJS",
   "author": "Rostyslav Pasternak",
   "private": false,
