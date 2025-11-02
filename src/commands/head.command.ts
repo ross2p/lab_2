@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 
 @Command({
-  name: 'head',
+  name: 'my-head',
   description: 'Виводить перші рядки файлу (за замовчуванням 10 рядків)',
 })
 export class HeadCommand extends CommandRunner {
@@ -16,9 +16,12 @@ export class HeadCommand extends CommandRunner {
     return parseInt(val, 10);
   }
 
-  async run(passedParam: string[], options?: any): Promise<void> {
+  async run(
+    passedParam: string[],
+    options?: Record<string, any>,
+  ): Promise<void> {
     const filePath = passedParam[0];
-    const lines = options['lines'] || 10;
+    const lines: number = (options?.['lines'] as number) || 10;
 
     if (!filePath) {
       console.error('Помилка: укажіть шлях до файлу');
@@ -47,7 +50,9 @@ export class HeadCommand extends CommandRunner {
         lineCount++;
       }
     } catch (error) {
-      console.error(`Помилка при читанні файлу: ${error.message}`);
+      console.error(
+        `Помилка при читанні файлу: ${error instanceof Error ? error.message : String(error)}`,
+      );
       process.exit(1);
     }
   }

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 
 @Command({
-  name: 'uniq',
+  name: 'my-uniq',
   description: 'Видаляє сусідні дублікати рядків у файлі',
 })
 export class UniqCommand extends CommandRunner {
@@ -39,9 +39,9 @@ export class UniqCommand extends CommandRunner {
     options?: Record<string, any>,
   ): Promise<void> {
     const filePath = passedParam[0];
-    const countFlag = options?.count || false;
-    const duplicatesFlag = options?.duplicates || false;
-    const uniqueFlag = options?.unique || false;
+    const countFlag: boolean = (options?.count as boolean) || false;
+    const duplicatesFlag: boolean = (options?.duplicates as boolean) || false;
+    const uniqueFlag: boolean = (options?.unique as boolean) || false;
 
     if (!filePath) {
       console.error('Помилка: укажіть шлях до файлу');
@@ -97,7 +97,9 @@ export class UniqCommand extends CommandRunner {
         }
       }
     } catch (error) {
-      console.error(`Помилка при читанні файлу: ${error.message}`);
+      console.error(
+        `Помилка при читанні файлу: ${error instanceof Error ? error.message : String(error)}`,
+      );
       process.exit(1);
     }
   }
