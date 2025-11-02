@@ -61,40 +61,18 @@ export class UniqCommand extends CommandRunner {
         crlfDelay: Infinity,
       });
 
-      let previousLine: string | null = null;
-      let count = 0;
-      const results: Array<{ line: string; count: number }> = [];
+      const results: Record<string, number> = {};
 
       for await (const line of rl) {
-        if (line === previousLine) {
-          count++;
-        } else {
-          if (previousLine !== null) {
-            results.push({ line: previousLine, count });
-          }
-          previousLine = line;
-          count = 1;
-        }
+        results[line] = (results[line] || 0) + 1;
       }
-
-      // Add the last line
-      if (previousLine !== null) {
-        results.push({ line: previousLine, count });
-      }
-
-      // Filter and output results
-      for (const item of results) {
-        if (uniqueFlag && item.count > 1) {
-          continue; // Skip duplicates
-        }
-        if (duplicatesFlag && item.count === 1) {
-          continue; // Skip unique
-        }
-
-        if (countFlag) {
-          console.log(`${item.count} ${item.line}`);
-        } else {
-          console.log(item.line);
+      for (const [line, count] of Object.entries(results)) {
+        if (duplicatesFlag && count > 1) {
+          console.log(countFlag ? `${count} ${line}` : line);
+        } else if (uniqueFlag && count === 1) {
+          console.log(countFlag ? `${count} ${line}` : line);
+        } else if (!duplicatesFlag && !uniqueFlag) {
+          console.log(countFlag ? `${count} ${line}` : line);
         }
       }
     } catch (error) {

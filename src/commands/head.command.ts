@@ -21,9 +21,6 @@ export class HeadCommand extends CommandRunner {
     passedParam: string[],
     options?: Record<string, any>,
   ): Promise<void> {
-    console.log('head command running...');
-    console.log('passedParam:', passedParam);
-    console.log('options:', options);
     const filePath = passedParam[0];
     const lines: number = (options?.['lines'] as number) || 10;
 
