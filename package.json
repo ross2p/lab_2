@@ -6,8 +6,8 @@
   "private": false,
   "license": "MIT",
   "bin": {
-    "my-head": "./dist/main.js",
-    "my-uniq": "./dist/main.js"
+    "my-head": "./dist/head.js",
+    "my-uniq": "./dist/uniq.js"
   },
   "scripts": {
     "build": "nest build",
