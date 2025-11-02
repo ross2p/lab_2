@@ -3,13 +3,14 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 
 @Command({
-  name: 'my-uniq',
-  description: 'Видаляє сусідні дублікати рядків у файлі',
+  name: 'uniq',
+  description: 'Remove adjacent duplicate lines from a file',
+  arguments: '[file]',
 })
 export class UniqCommand extends CommandRunner {
   @Option({
     flags: '-c, --count',
-    description: 'Виводить кількість повторень для кожної групи',
+    description: 'Display the count of repetitions for each group',
     defaultValue: false,
   })
   parseCount(): boolean {
@@ -18,7 +19,7 @@ export class UniqCommand extends CommandRunner {
 
   @Option({
     flags: '-d, --duplicates',
-    description: 'Виводить тільки рядки, які повторюються',
+    description: 'Output only lines that are repeated',
     defaultValue: false,
   })
   parseDuplicates(): boolean {
@@ -27,7 +28,7 @@ export class UniqCommand extends CommandRunner {
 
   @Option({
     flags: '-u, --unique',
-    description: 'Виводить тільки унікальні рядки',
+    description: 'Output only unique lines',
     defaultValue: false,
   })
   parseUnique(): boolean {
@@ -44,12 +45,12 @@ export class UniqCommand extends CommandRunner {
     const uniqueFlag: boolean = (options?.unique as boolean) || false;
 
     if (!filePath) {
-      console.error('Помилка: укажіть шлях до файлу');
+      console.error('Error: specify the path to the file');
       process.exit(1);
     }
 
     if (!fs.existsSync(filePath)) {
-      console.error(`Помилка: файл '${filePath}' не знайдено`);
+      console.error(`Error: file '${filePath}' not found`);
       process.exit(1);
     }
 
@@ -76,18 +77,18 @@ export class UniqCommand extends CommandRunner {
         }
       }
 
-      // Додаємо останній рядок
+      // Add the last line
       if (previousLine !== null) {
         results.push({ line: previousLine, count });
       }
 
-      // Фільтруємо та виводимо результати
+      // Filter and output results
       for (const item of results) {
         if (uniqueFlag && item.count > 1) {
-          continue; // Пропускаємо дублікати
+          continue; // Skip duplicates
         }
         if (duplicatesFlag && item.count === 1) {
-          continue; // Пропускаємо унікальні
+          continue; // Skip unique
         }
 
         if (countFlag) {
@@ -98,7 +99,7 @@ export class UniqCommand extends CommandRunner {
       }
     } catch (error) {
       console.error(
-        `Помилка при читанні файлу: ${error instanceof Error ? error.message : String(error)}`,
+        `Error reading file: ${error instanceof Error ? error.message : String(error)}`,
       );
       process.exit(1);
     }

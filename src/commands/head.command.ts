@@ -3,13 +3,14 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 
 @Command({
-  name: 'my-head',
-  description: 'Виводить перші рядки файлу (за замовчуванням 10 рядків)',
+  name: 'head',
+  description: 'Output the first lines of a file (default 10 lines)',
+  arguments: '[file]',
 })
 export class HeadCommand extends CommandRunner {
   @Option({
     flags: '-n, --lines <number>',
-    description: 'Кількість рядків для виведення (за замовчуванням: 10)',
+    description: 'Number of lines to output (default: 10)',
     defaultValue: 10,
   })
   parseLines(val: string): number {
@@ -20,16 +21,19 @@ export class HeadCommand extends CommandRunner {
     passedParam: string[],
     options?: Record<string, any>,
   ): Promise<void> {
+    console.log('head command running...');
+    console.log('passedParam:', passedParam);
+    console.log('options:', options);
     const filePath = passedParam[0];
     const lines: number = (options?.['lines'] as number) || 10;
 
     if (!filePath) {
-      console.error('Помилка: укажіть шлях до файлу');
+      console.error('Error: specify the path to the file');
       process.exit(1);
     }
 
     if (!fs.existsSync(filePath)) {
-      console.error(`Помилка: файл '${filePath}' не знайдено`);
+      console.error(`Error: file '${filePath}' not found`);
       process.exit(1);
     }
 
@@ -51,7 +55,7 @@ export class HeadCommand extends CommandRunner {
       }
     } catch (error) {
       console.error(
-        `Помилка при читанні файлу: ${error instanceof Error ? error.message : String(error)}`,
+        `Error reading file: ${error instanceof Error ? error.message : String(error)}`,
       );
       process.exit(1);
     }

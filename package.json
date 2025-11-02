@@ -6,8 +6,7 @@
   "private": false,
   "license": "MIT",
   "bin": {
-    "my-head": "./dist/head.js",
-    "my-uniq": "./dist/uniq.js"
+    "my-cli": "dist/main.js"
   },
   "scripts": {
     "build": "nest build",
